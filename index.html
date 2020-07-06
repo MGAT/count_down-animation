@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        canvas{
+            background:rgb(16, 17, 41);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="wrap" height="350" width="600" />
+</body>
+    <script>
+        var wrap = document.getElementById('wrap')
+      var cxt = wrap.getContext('2d')
+      // var audio = document.getElementById("voice");
+      // audio.play();
+
+      // 获取API
+      // window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext;
+      // window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
+      // var context = new AudioContext();
+
+      // 创建节点
+      // var source = context.createMediaElementSource(audio);
+
+      // var analyser = context.createAnalyser();
+
+      // 连接：source → analyser → destination
+      // source.connect(analyser);
+      // analyser.connect(context.destination);
+      // 创建数据
+      // var output = new Uint8Array(361);
+      // 计算出采样频率44100所需的缓冲区长度
+      // var length = analyser.frequencyBinCount * 44100 / context.sampleRate | 0;
+      // 创建数据
+      // var output2 = new Uint8Array(length);
+
+      let degree = 0
+      const fps = 10
+      const fpsInterval = 1000 / fps
+      let last = new Date().getTime()
+
+      const sx = 10; const sy = 290; const cx1 = 50; const cx2 = 150; const ex = 590; const ey = 290; let t = 0; const n = 200; let bubbleNum = 0
+      const bubbles = [{ a: 1, x: 1, y: 1, r: 4, s: 1 }];
+
+      (function drawSpectrum() {
+        requestAnimationFrame(drawSpectrum)
+        const now = new Date().getTime()
+        const elapsed = now - last
+        if (elapsed > fpsInterval) {
+          last = now - (elapsed % fpsInterval)
+
+          // 获取频域数据
+          // analyser.getByteFrequencyData(output2);
+          cxt.clearRect(0, 0, wrap.width, wrap.height)
+
+          for (var i = 0; i < 90; i++) {
+            var value = 20// <===获取数据
+            cxt.beginPath()
+            cxt.lineWidth = 3
+            cxt.lineCap = 'round'
+            // cxt.moveTo(300, 150)
+            cxt.moveTo( wrap.width/2, wrap.height/2)
+
+            // R * cos (PI/180*一次旋转的角度数) ,-R * sin (PI/180*一次旋转的角度数)
+            // cxt.lineTo(Math.cos((i * 4 - degree) / 180 * Math.PI) * (120 + value) + 300, (-Math.sin((i * 4 - degree) / 180 * Math.PI) * (120 + value) + 150))
+            cxt.lineTo(Math.cos((i * 4 - degree) / 180 * Math.PI) * (120 + value) + wrap.width/2, (-Math.sin((i * 4 - degree) / 180 * Math.PI) * (120 + value) + wrap.height/2))
+
+            cxt.strokeStyle = '#33CCFF'
+            cxt.stroke()
+
+            // 画一个小圆，将线条覆盖
+            cxt.beginPath()
+            cxt.lineWidth = 1
+            // cxt.arc(300, 150, 120, 0, 2 * Math.PI, false)
+            cxt.arc( wrap.width/2, wrap.height/2, 120, 0, 2 * Math.PI, false)
+            cxt.fillStyle = 'rgb(16, 17, 41)'
+            cxt.fill()
+          }
+
+          // 分成几等份
+          const num = 3
+          // 每等份多少弧度
+          const angle = Math.PI * 2 / num
+
+          for (var i = 0; i < num; i++) {
+            const startAngle = i * angle - degree / 180 * Math.PI
+            const endAngle = (i + 0.9) * angle - degree / 180 * Math.PI
+            cxt.beginPath()
+            cxt.lineWidth = 3
+            cxt.moveTo(wrap.width / 2, wrap.height / 2)
+            cxt.arc(wrap.width / 2, wrap.height / 2, 160, startAngle, endAngle)
+            cxt.fillStyle = 'RGBA(118,221,255,0.2)'
+            cxt.fill()
+            cxt.closePath()
+
+            // 画一个小圆，将线条覆盖
+            cxt.beginPath()
+            cxt.lineWidth = 1
+            // cxt.arc(300, 150, 100, 0, 2 * Math.PI, false)
+            cxt.arc(wrap.width / 2, wrap.height / 2, 100, 0, 2 * Math.PI, false)
+            cxt.fillStyle = 'rgb(16, 17, 41)'
+            cxt.fill()
+          }
+
+          degree++
+
+          var height = 500; var width = 60
+          cxt.beginPath()
+          cxt.lineWidth = 4
+          cxt.strokeStyle = 'RGBA(201,13,21,0.7)'
+          // cxt.strokeStyle = 'RGBA(204,255,255,0.3)'
+
+          for (var i = 0; i < width; i++) {
+            // cxt.lineTo(i*10-200, 200 - (height / 2 * (output2[output2.length * i / width | 0] / 256 - 0.5)));
+            if (i < 4 || i > 55) {
+              cxt.lineTo(i * 10 + 5, 290)
+            } else {
+              if (i % 2 == 0) {
+                cxt.lineTo(i * 10, 290)
+              } else {
+                cxt.lineTo(i * 10, 290 - (Math.floor(Math.random() * (50 + 50 + 1) - 50)))
+              }
+            }
+          }
+          cxt.stroke()
+          cxt.closePath()
+          // requestAnimationFrame(drawSpectrum);
+
+          // Hour marks
+          cxt.save()
+          cxt.translate(wrap.width / 2, wrap.height / 2)
+          cxt.strokeStyle = 'RGB(183,192,198)'
+          for (var i = 0; i < 12; i++) {
+            cxt.beginPath()
+            cxt.rotate(Math.PI / 6)
+            cxt.moveTo(70, 0)
+            cxt.lineTo(80, 0)
+            cxt.stroke()
+          }
+          cxt.restore()
+
+          // Minute marks
+          cxt.save()
+          cxt.translate(wrap.width / 2, wrap.height / 2)
+          cxt.strokeStyle = 'RGB(183,192,198)'
+          cxt.lineWidth = 3
+          for (i = 0; i < 60; i++) {
+            if (i % 5 != 0) {
+              cxt.beginPath()
+              cxt.moveTo(77, 0)
+              cxt.lineTo(80, 0)
+              cxt.stroke()
+            }
+            cxt.rotate(Math.PI / 30)
+          }
+          cxt.restore()
+
+          cxt.save();
+          // first line words text;
+          cxt.beginPath()
+          cxt.lineWidth = 1;
+          // cxt.fillStyle = 'RGB(0,162,232)'
+          // cxt.strokeStyle = 'RGB(255,255,255)';
+          // cxt.shadowColor = 'rgba(255,153,0, 0.3)';
+          // // 将阴影向右移动15px，向上移动10px
+          cxt.shadowOffsetX = 6;
+          cxt.shadowOffsetY = 4;
+          // 轻微模糊阴影
+          cxt.shadowBlur = 3;
+
+          cxt.fillStyle = 'RGB(255,153,0)';
+          cxt.font = 'bold 80px Cursive '
+          cxt.fillText('1300', 210, 70)
+          cxt.closePath()
+
+          // second line description text;
+          cxt.beginPath()
+          // cxt.shadowColor = 'rgba(0,255,255, 0.3)';
+          cxt.fillStyle = 'RGB(0,255,255)'
+          cxt.font = 'bold 24px Arial'
+          cxt.fillText('版本发布冲刺倒计时', 190, 110)
+          cxt.closePath()
+
+          // // third line date time text;
+          // // cxt.beginPath()
+          // // cxt.fillStyle = 'RGB(255,127,39)'
+          // // cxt.font = 'bold 18px Arial'
+          // // cxt.fillText('2020-01-01 ~ 2020-08-30', 200, 100)
+          // // cxt.closePath()
+
+          // forth line count down time text;
+          cxt.beginPath();
+          cxt.fillStyle = "RGB(0,255,255)"
+          cxt.strokeStyle = "RGB(255,153,0)"
+          cxt.font = "bold 70px Arial";
+          // cxt.shadowColor = 'rgba(0,255,255, 0.3)';
+          cxt.lineWidth = 3;
+          cxt.fillText("剩", 148, 203);
+          cxt.fillText("天", 385, 203);
+          cxt.fillStyle = "RGB(255,153,0)"
+          // cxt.fillStyle = "RGB(255,255,255)"
+          cxt.shadowColor = 'rgba(255,153,0, 0.3)';
+          cxt.font = "bold 60px Arial";
+          cxt.fillText("75", 268, 195);
+          cxt.closePath();
+          cxt.restore();
+
+          // fifth deadline goal text;
+          cxt.beginPath();
+          cxt.fillStyle = "RGB(0,255,255)"
+          cxt.font = "bold 28px Arial";
+          // cxt.shadowColor = 'rgba(0,255,255, 0.3)';
+          cxt.fillText("版本发布目标：", 50, 298);                  
+          cxt.fillText("天", 320, 298);;
+          cxt.fillText("个功能交付", 410, 298);
+          // cxt.fillStyle = "RGB(63,72,204)"
+          cxt.fillStyle = "RGB(255,153,0)"
+          cxt.font = "bold 50px Arial";
+          // cxt.shadowColor = 'rgba(255,153,0, 0.3)';
+          cxt.fillText("210", 232, 300);
+          cxt.fillText("26", 352, 300);
+          cxt.closePath();
+        }
+
+        t++
+        bubbleNum++
+        // cxt.lineWidth = 2
+        // cxt.strokeStyle = 'RGBA(231,245,246, 0.2)'
+        // cxt.beginPath();
+        // cxt.moveTo(sx, sy);
+        // cxt.lineTo(ex, ey)
+        // cxt.stroke();
+
+        let x = sx + t * 2
+        const y = sy
+
+        if (bubbleNum > 50) {
+          bubbles.shift()
+        }
+
+        for (var i = 0; i < bubbles.length; i++) {
+          bubbles[i].a = (i + 1) * 0.02
+          bubbles[i].s = (i + 1) * 0.02
+        }
+        const b = { a: 1, s: 1, x: x, y: y }
+        bubbles.push(b)
+        // 渲染bubble数组
+        for (let j = 0; j < bubbles.length; j++) {
+          const b = bubbles[j]
+          cxt.save()
+          cxt.beginPath()
+          cxt.globalAlpha = b.a // 值是0-1,0代表完全透明，1代表完全不透明
+          cxt.fillStyle = 'RGB(245,255,255)'
+          cxt.arc(b.x, b.y, b.s * 3, 0, 2 * Math.PI, false)
+          cxt.fill()
+          cxt.restore()
+        }
+
+        if (x == 590) {
+          t = 0
+        }
+      })()
+    </script>
+</html>
